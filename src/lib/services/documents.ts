@@ -1,5 +1,6 @@
 import { supabase } from '../supabase'
 import { Database } from '../database.types'
+import { PostgrestError } from '@supabase/supabase-js'
 
 type Document = Database['public']['Tables']['documents']['Row']
 type DocumentInsert = Database['public']['Tables']['documents']['Insert']
@@ -7,7 +8,7 @@ type DocumentUpdate = Database['public']['Tables']['documents']['Update']
 
 export class DocumentsService {
   // Get all documents for the current user
-  static async getUserDocuments(): Promise<{ data: Document[] | null; error: any }> {
+  static async getUserDocuments(): Promise<{ data: Document[] | null; error: PostgrestError | null }> {
     const { data, error } = await supabase
       .from('documents')
       .select('*')
@@ -17,7 +18,7 @@ export class DocumentsService {
   }
 
   // Get a specific document by ID
-  static async getDocument(id: string): Promise<{ data: Document | null; error: any }> {
+  static async getDocument(id: string): Promise<{ data: Document | null; error: PostgrestError | null }> {
     const { data, error } = await supabase
       .from('documents')
       .select('*')
@@ -28,7 +29,7 @@ export class DocumentsService {
   }
 
   // Create a new document
-  static async createDocument(document: Omit<DocumentInsert, 'user_id'>): Promise<{ data: Document | null; error: any }> {
+  static async createDocument(document: Omit<DocumentInsert, 'user_id'>): Promise<{ data: Document | null; error: PostgrestError | { message: string } | null }> {
     const { data: { user } } = await supabase.auth.getUser()
     
     if (!user) {
@@ -48,7 +49,7 @@ export class DocumentsService {
   }
 
   // Update a document
-  static async updateDocument(id: string, updates: DocumentUpdate): Promise<{ data: Document | null; error: any }> {
+  static async updateDocument(id: string, updates: DocumentUpdate): Promise<{ data: Document | null; error: PostgrestError | null }> {
     const { data, error } = await supabase
       .from('documents')
       .update(updates)
@@ -60,7 +61,7 @@ export class DocumentsService {
   }
 
   // Delete a document
-  static async deleteDocument(id: string): Promise<{ error: any }> {
+  static async deleteDocument(id: string): Promise<{ error: PostgrestError | null }> {
     const { error } = await supabase
       .from('documents')
       .delete()
@@ -85,7 +86,7 @@ export class DocumentsService {
   }
 
   // Update word count for a document
-  static async updateWordCount(id: string, content: string): Promise<{ data: Document | null; error: any }> {
+  static async updateWordCount(id: string, content: string): Promise<{ data: Document | null; error: PostgrestError | null }> {
     const wordCount = this.countWords(content)
     
     return this.updateDocument(id, { 

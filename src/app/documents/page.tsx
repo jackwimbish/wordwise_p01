@@ -43,7 +43,7 @@ export default function DocumentsPage() {
       } else {
         setDocuments(data || [])
       }
-    } catch (err) {
+    } catch {
       setError('Failed to load documents')
     } finally {
       setLoading(false)
@@ -66,7 +66,7 @@ export default function DocumentsPage() {
         // Navigate to the new document (you can implement editing later)
         router.push(`/documents/${data.id}`)
       }
-    } catch (err) {
+    } catch {
       setError('Failed to create document')
     }
   }
@@ -85,7 +85,7 @@ export default function DocumentsPage() {
         // Remove the document from the local state
         setDocuments(documents.filter(doc => doc.id !== documentId))
       }
-    } catch (err) {
+    } catch {
       setError('Failed to delete document')
     }
   }

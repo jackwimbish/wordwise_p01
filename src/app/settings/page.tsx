@@ -1,8 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useEffect } from 'react'
 import { useAuth } from '@/lib/hooks/useAuth'
-import { Button } from '@/components/ui/button'
 import { 
   User, 
   Mail, 
@@ -14,7 +13,6 @@ import { useRouter } from 'next/navigation'
 export default function SettingsPage() {
   const { user, loading: authLoading } = useAuth()
   const router = useRouter()
-  const [message, setMessage] = useState('')
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -52,13 +50,6 @@ export default function SettingsPage() {
           <h1 className="text-3xl font-bold text-slate-800">Account Settings</h1>
           <p className="text-slate-600 mt-2">Manage your account information and preferences</p>
         </div>
-
-        {/* Message */}
-        {message && (
-          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 text-blue-800 rounded-lg">
-            {message}
-          </div>
-        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Account Information */}

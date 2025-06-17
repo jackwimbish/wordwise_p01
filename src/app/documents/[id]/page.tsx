@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, use } from 'react'
+import { useState, useEffect, use, useCallback } from 'react'
 import { useAuth } from '@/lib/hooks/useAuth'
 import { DocumentsService } from '@/lib/services/documents'
 import { Button } from '@/components/ui/button'
@@ -35,37 +35,7 @@ export default function DocumentEditor({ params }: DocumentEditorProps) {
   const [lastSaved, setLastSaved] = useState<Date | null>(null)
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
 
-  useEffect(() => {
-    if (!authLoading && !user) {
-      router.push('/')
-      return
-    }
-    if (user) {
-      loadDocument()
-    }
-  }, [resolvedParams.id, user, authLoading, router])
-
-  // Auto-save functionality with debouncing
-  useEffect(() => {
-    if (!document || !hasUnsavedChanges) return
-
-    const autoSaveTimeout = setTimeout(async () => {
-      await handleAutoSave()
-    }, 2000) // Auto-save after 2 seconds of inactivity
-
-    return () => clearTimeout(autoSaveTimeout)
-  }, [title, content, document, hasUnsavedChanges])
-
-  // Track changes to content
-  useEffect(() => {
-    if (document) {
-      const titleChanged = title !== document.title
-      const contentChanged = content !== (document.content || '')
-      setHasUnsavedChanges(titleChanged || contentChanged)
-    }
-  }, [title, content, document])
-
-  const loadDocument = async () => {
+  const loadDocument = useCallback(async () => {
     try {
       setLoading(true)
       const { data, error } = await DocumentsService.getDocument(resolvedParams.id)
@@ -79,43 +49,14 @@ export default function DocumentEditor({ params }: DocumentEditorProps) {
       } else {
         setError('Document not found')
       }
-    } catch (err) {
+    } catch {
       setError('Failed to load document')
     } finally {
       setLoading(false)
     }
-  }
+  }, [resolvedParams.id])
 
-  const handleSave = async () => {
-    if (!document) return
-
-    try {
-      setSaving(true)
-      setError(null)
-      
-      const wordCount = DocumentsService.countWords(content)
-      
-      const { error } = await DocumentsService.updateDocument(document.id, {
-        title,
-        content,
-        word_count: wordCount,
-        updated_at: new Date().toISOString()
-      })
-
-      if (error) {
-        setError(error.message)
-      } else {
-        setLastSaved(new Date())
-        setHasUnsavedChanges(false)
-      }
-    } catch (err) {
-      setError('Failed to save document')
-    } finally {
-      setSaving(false)
-    }
-  }
-
-  const handleAutoSave = async () => {
+  const handleAutoSave = useCallback(async () => {
     if (!document || autoSaving || saving) return
 
     try {
@@ -142,6 +83,65 @@ export default function DocumentEditor({ params }: DocumentEditorProps) {
       console.error('Auto-save failed:', err)
     } finally {
       setAutoSaving(false)
+    }
+  }, [document, autoSaving, saving, title, content])
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.push('/')
+      return
+    }
+    if (user) {
+      loadDocument()
+    }
+  }, [user, authLoading, router, loadDocument])
+
+  // Auto-save functionality with debouncing
+  useEffect(() => {
+    if (!document || !hasUnsavedChanges) return
+
+    const autoSaveTimeout = setTimeout(async () => {
+      await handleAutoSave()
+    }, 2000) // Auto-save after 2 seconds of inactivity
+
+    return () => clearTimeout(autoSaveTimeout)
+  }, [document, hasUnsavedChanges, handleAutoSave])
+
+  // Track changes to content
+  useEffect(() => {
+    if (document) {
+      const titleChanged = title !== document.title
+      const contentChanged = content !== (document.content || '')
+      setHasUnsavedChanges(titleChanged || contentChanged)
+    }
+  }, [title, content, document])
+
+  const handleSave = async () => {
+    if (!document) return
+
+    try {
+      setSaving(true)
+      setError(null)
+      
+      const wordCount = DocumentsService.countWords(content)
+      
+      const { error } = await DocumentsService.updateDocument(document.id, {
+        title,
+        content,
+        word_count: wordCount,
+        updated_at: new Date().toISOString()
+      })
+
+      if (error) {
+        setError(error.message)
+      } else {
+        setLastSaved(new Date())
+        setHasUnsavedChanges(false)
+      }
+    } catch {
+      setError('Failed to save document')
+    } finally {
+      setSaving(false)
     }
   }
 
@@ -249,47 +249,32 @@ export default function DocumentEditor({ params }: DocumentEditorProps) {
           </div>
         </div>
 
-        {/* Error Message */}
         {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-800 rounded-lg">
-            {error}
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-md mb-6">
+            <p>{error}</p>
           </div>
         )}
 
-        {/* Editor */}
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200">
-          {/* Title Input */}
+        <div className="bg-white rounded-lg shadow-lg">
           <div className="p-6 border-b border-slate-200">
             <input
               type="text"
-              placeholder="Document title..."
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full text-2xl font-bold text-slate-800 placeholder:text-slate-400 border-none outline-none focus:ring-0"
+              placeholder="Document Title"
+              className="text-2xl font-bold w-full outline-none"
             />
           </div>
-
-          {/* Rich Text Editor */}
           <div className="p-6">
             <RichTextEditor
               content={content}
               onChange={setContent}
-              placeholder="Start writing your document..."
             />
           </div>
         </div>
 
-        {/* Document Info */}
-        <div className="mt-6 text-sm text-slate-500 text-center">
-          <div className="flex justify-center space-x-6">
-            <span>Words: {DocumentsService.countWords(content)}</span>
-            <span>Characters: {content.length}</span>
-            {document?.created_at && (
-              <span>
-                Created: {new Date(document.created_at).toLocaleDateString()}
-              </span>
-            )}
-          </div>
+        <div className="mt-8 text-center text-sm text-slate-500">
+          <p>Word Count: {DocumentsService.countWords(content)}</p>
         </div>
       </div>
     </div>

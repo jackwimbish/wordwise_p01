@@ -6,8 +6,7 @@ import { Button } from './ui/button'
 import { 
   FileText, 
   Settings, 
-  LogOut, 
-  User 
+  LogOut
 } from 'lucide-react'
 
 export function Navbar() {
