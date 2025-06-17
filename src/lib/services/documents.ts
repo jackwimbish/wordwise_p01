@@ -69,10 +69,19 @@ export class DocumentsService {
     return { error }
   }
 
-  // Count words in content
+  // Count words in content (handles both plain text and HTML)
   static countWords(content: string): number {
     if (!content || content.trim().length === 0) return 0
-    return content.trim().split(/\s+/).length
+    
+    // Strip HTML tags and decode HTML entities for accurate word count
+    const plainText = content
+      .replace(/<[^>]*>/g, ' ') // Remove HTML tags
+      .replace(/&nbsp;/g, ' ') // Replace non-breaking spaces
+      .replace(/&[^;]+;/g, ' ') // Replace other HTML entities
+      .trim()
+    
+    if (plainText.length === 0) return 0
+    return plainText.split(/\s+/).filter(word => word.length > 0).length
   }
 
   // Update word count for a document
@@ -81,8 +90,8 @@ export class DocumentsService {
     
     return this.updateDocument(id, { 
       content, 
-      word_count: wordCount,
-      status: 'completed'
+      word_count: wordCount
+      // status field omitted to avoid constraint violations
     })
   }
 } 

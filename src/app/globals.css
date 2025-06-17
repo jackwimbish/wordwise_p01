@@ -77,16 +77,17 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-/* Base input styles for better visibility */
+/* Base input styles for better visibility - Light theme matching app design */
 input[type="email"],
 input[type="password"],
 input[type="text"],
 textarea {
-  background-color: white;
-  border: 2px solid #d1d5db;
-  color: #111827;
+  background-color: #ffffff;
+  border: 2px solid #e2e8f0;
+  color: #1e293b;
   font-size: 1rem;
   font-weight: 500;
+  border-radius: 0.75rem;
 }
 
 input[type="email"]:focus,
@@ -94,15 +95,16 @@ input[type="password"]:focus,
 input[type="text"]:focus,
 textarea:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+  background-color: #ffffff;
 }
 
 input[type="email"]::placeholder,
 input[type="password"]::placeholder,
 input[type="text"]::placeholder,
 textarea::placeholder {
-  color: #6b7280;
+  color: #94a3b8;
   font-weight: 400;
 }
 
@@ -111,29 +113,100 @@ button {
   font-weight: 500;
 }
 
-/* Dark mode adjustments */
+/* Line clamp utility for text truncation */
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* TipTap editor content styling for better contrast */
+.ProseMirror {
+  color: #1e293b !important; /* Dark slate for excellent readability */
+  font-size: 1rem;
+  line-height: 1.7;
+  outline: none;
+}
+
+.ProseMirror p {
+  color: #1e293b !important;
+  margin: 0.75rem 0;
+}
+
+.ProseMirror h1, .ProseMirror h2, .ProseMirror h3, 
+.ProseMirror h4, .ProseMirror h5, .ProseMirror h6 {
+  color: #0f172a !important; /* Even darker for headings */
+  font-weight: 600;
+}
+
+.ProseMirror strong {
+  color: #0f172a !important;
+  font-weight: 700;
+}
+
+.ProseMirror em {
+  color: #1e293b !important;
+  font-style: italic;
+}
+
+.ProseMirror u {
+  color: #1e293b !important;
+  text-decoration: underline;
+}
+
+.ProseMirror ul, .ProseMirror ol {
+  color: #1e293b !important;
+  padding-left: 1.5rem;
+  margin: 0.75rem 0;
+}
+
+.ProseMirror li {
+  color: #1e293b !important;
+  margin: 0.25rem 0;
+}
+
+.ProseMirror blockquote {
+  color: #475569 !important;
+  border-left: 4px solid #e2e8f0;
+  padding-left: 1rem;
+  margin: 1rem 0;
+  font-style: italic;
+}
+
+.ProseMirror p.is-editor-empty:first-child::before {
+  color: #94a3b8 !important; /* Placeholder text */
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+/* Maintain light theme for inputs even in dark mode preference */
 @media (prefers-color-scheme: dark) {
+  /* Keep inputs light to match the app's consistent light theme */
   input[type="email"],
   input[type="password"],
   input[type="text"],
   textarea {
-    background-color: #1f2937;
-    border-color: #374151;
-    color: #f9fafb;
+    background-color: #ffffff !important;
+    border-color: #e2e8f0 !important;
+    color: #1e293b !important;
   }
 
   input[type="email"]:focus,
   input[type="password"]:focus,
   input[type="text"]:focus,
   textarea:focus {
-    border-color: #60a5fa;
-    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
+    border-color: #4f46e5 !important;
+    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1) !important;
+    background-color: #ffffff !important;
   }
 
   input[type="email"]::placeholder,
   input[type="password"]::placeholder,
   input[type="text"]::placeholder,
   textarea::placeholder {
-    color: #9ca3af;
+    color: #94a3b8 !important;
   }
 }

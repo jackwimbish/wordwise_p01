@@ -1,0 +1,182 @@
+'use client'
+
+import { useEditor, EditorContent } from '@tiptap/react'
+import StarterKit from '@tiptap/starter-kit'
+import Bold from '@tiptap/extension-bold'
+import Italic from '@tiptap/extension-italic'
+import Underline from '@tiptap/extension-underline'
+import Placeholder from '@tiptap/extension-placeholder'
+import { Button } from './ui/button'
+import { 
+  Bold as BoldIcon, 
+  Italic as ItalicIcon, 
+  Underline as UnderlineIcon,
+  List,
+  ListOrdered,
+  Quote,
+  Undo,
+  Redo
+} from 'lucide-react'
+
+interface RichTextEditorProps {
+  content: string
+  onChange: (content: string) => void
+  placeholder?: string
+}
+
+export function RichTextEditor({ content, onChange, placeholder = "Start writing..." }: RichTextEditorProps) {
+  const editor = useEditor({
+    extensions: [
+      StarterKit,
+      Bold,
+      Italic,
+      Underline,
+      Placeholder.configure({
+        placeholder,
+      }),
+    ],
+    content,
+    onUpdate: ({ editor }) => {
+      onChange(editor.getHTML())
+    },
+  })
+
+  if (!editor) {
+    return null
+  }
+
+  return (
+    <div className="border border-slate-200 rounded-xl overflow-hidden bg-white">
+      {/* Toolbar */}
+      <div className="border-b border-slate-200 p-3 bg-slate-50">
+        <div className="flex items-center space-x-1">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => editor.chain().focus().toggleBold().run()}
+            className={`p-2 ${
+              editor.isActive('bold') 
+                ? 'bg-indigo-100 border-indigo-300 text-indigo-700' 
+                : 'bg-white border-slate-300 text-slate-600 hover:bg-slate-50'
+            }`}
+            title="Bold"
+          >
+            <BoldIcon className="w-4 h-4" />
+          </Button>
+          
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => editor.chain().focus().toggleItalic().run()}
+            className={`p-2 ${
+              editor.isActive('italic') 
+                ? 'bg-indigo-100 border-indigo-300 text-indigo-700' 
+                : 'bg-white border-slate-300 text-slate-600 hover:bg-slate-50'
+            }`}
+            title="Italic"
+          >
+            <ItalicIcon className="w-4 h-4" />
+          </Button>
+          
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => editor.chain().focus().toggleUnderline().run()}
+            className={`p-2 ${
+              editor.isActive('underline') 
+                ? 'bg-indigo-100 border-indigo-300 text-indigo-700' 
+                : 'bg-white border-slate-300 text-slate-600 hover:bg-slate-50'
+            }`}
+            title="Underline"
+          >
+            <UnderlineIcon className="w-4 h-4" />
+          </Button>
+
+          <div className="w-px h-6 bg-slate-300 mx-2" />
+
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => editor.chain().focus().toggleBulletList().run()}
+            className={`p-2 ${
+              editor.isActive('bulletList') 
+                ? 'bg-indigo-100 border-indigo-300 text-indigo-700' 
+                : 'bg-white border-slate-300 text-slate-600 hover:bg-slate-50'
+            }`}
+            title="Bullet List"
+          >
+            <List className="w-4 h-4" />
+          </Button>
+
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => editor.chain().focus().toggleOrderedList().run()}
+            className={`p-2 ${
+              editor.isActive('orderedList') 
+                ? 'bg-indigo-100 border-indigo-300 text-indigo-700' 
+                : 'bg-white border-slate-300 text-slate-600 hover:bg-slate-50'
+            }`}
+            title="Numbered List"
+          >
+            <ListOrdered className="w-4 h-4" />
+          </Button>
+
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => editor.chain().focus().toggleBlockquote().run()}
+            className={`p-2 ${
+              editor.isActive('blockquote') 
+                ? 'bg-indigo-100 border-indigo-300 text-indigo-700' 
+                : 'bg-white border-slate-300 text-slate-600 hover:bg-slate-50'
+            }`}
+            title="Quote"
+          >
+            <Quote className="w-4 h-4" />
+          </Button>
+
+          <div className="w-px h-6 bg-slate-300 mx-2" />
+
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => editor.chain().focus().undo().run()}
+            disabled={!editor.can().undo()}
+            className="p-2 bg-white border-slate-300 text-slate-600 hover:bg-slate-50 disabled:opacity-50"
+            title="Undo"
+          >
+            <Undo className="w-4 h-4" />
+          </Button>
+
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => editor.chain().focus().redo().run()}
+            disabled={!editor.can().redo()}
+            className="p-2 bg-white border-slate-300 text-slate-600 hover:bg-slate-50 disabled:opacity-50"
+            title="Redo"
+          >
+            <Redo className="w-4 h-4" />
+          </Button>
+        </div>
+      </div>
+
+      {/* Editor Content */}
+      <div className="p-6">
+        <EditorContent 
+          editor={editor} 
+          className="prose prose-slate max-w-none focus:outline-none min-h-[400px]"
+        />
+      </div>
+    </div>
+  )
+} 

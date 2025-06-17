@@ -27,6 +27,9 @@ export function AuthExample() {
         const { error } = await signIn(email, password)
         if (error) {
           setMessage(error.message)
+        } else {
+          // User will be automatically redirected by the main page component
+          setMessage('✅ Signed in successfully!')
         }
       }
     } catch (error) {

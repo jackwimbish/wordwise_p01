@@ -1,6 +1,34 @@
+'use client'
+
+import { useEffect } from 'react'
+import { useAuth } from '@/lib/hooks/useAuth'
 import { AuthExample } from "@/components/AuthExample";
+import { useRouter } from 'next/navigation'
 
 export default function Home() {
+  const { user, loading } = useAuth()
+  const router = useRouter()
+
+  useEffect(() => {
+    if (!loading && user) {
+      router.push('/documents')
+    }
+  }, [user, loading, router])
+
+  // Show loading while checking auth state
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+        <div className="text-lg font-medium text-slate-700">Loading...</div>
+      </div>
+    )
+  }
+
+  // If user is authenticated, they'll be redirected above
+  if (user) {
+    return null
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
       <header className="bg-white/80 backdrop-blur-sm shadow-sm border-b border-slate-200/60">
