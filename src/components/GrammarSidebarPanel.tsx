@@ -11,7 +11,7 @@ import {
 
 interface GrammarSidebarPanelProps {
   result: GrammarCheckResult | null
-  onApplySuggestion: (suggestion: GrammarSuggestion) => void
+  onApplySuggestion: (suggestion: GrammarSuggestion) => boolean
   onApplyAllSuggestions: () => void
   onClearSuggestions: () => void
   isChecking: boolean
