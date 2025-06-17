@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
     }
 
     const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini", // Using GPT-4o mini as it's the most current efficient model
+      model: "gpt-4.1-nano-2025-04-14", // Using GPT-4.1 nano for grammar and spelling suggestions
       messages: [
         {
           role: "system",
