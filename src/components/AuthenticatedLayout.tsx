@@ -24,14 +24,20 @@ export function AuthenticatedLayout({ children }: AuthenticatedLayoutProps) {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <div className="text-lg font-medium text-slate-700">Loading...</div>
-      </div>
+      <GrammarProvider>
+        <div className="min-h-screen flex items-center justify-center bg-slate-50">
+          <div className="text-lg font-medium text-slate-700">Loading...</div>
+        </div>
+      </GrammarProvider>
     )
   }
 
   if (!user) {
-    return <>{children}</>
+    return (
+      <GrammarProvider>
+        {children}
+      </GrammarProvider>
+    )
   }
 
   return (

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from './ui/button'
 import { GrammarCheckResult, GrammarSuggestion } from '@/lib/hooks/useGrammarCheck'
 import { 
@@ -43,6 +43,22 @@ export function GrammarSuggestionsPanel({
   const [expandedSuggestions, setExpandedSuggestions] = useState<Set<number>>(new Set())
   const [appliedSuggestions, setAppliedSuggestions] = useState<Set<number>>(new Set())
   const [dismissedSuggestions, setDismissedSuggestions] = useState<Set<number>>(new Set())
+  const [lastResultId, setLastResultId] = useState<string | null>(null)
+
+  // Reset applied/dismissed states when new grammar results come in
+  useEffect(() => {
+    if (result) {
+      // Create a unique ID for this result based on the suggestions content
+      const resultId = JSON.stringify(result.suggestions.map(s => ({ original: s.original, suggestion: s.suggestion })))
+      
+      if (resultId !== lastResultId) {
+        setAppliedSuggestions(new Set())
+        setDismissedSuggestions(new Set())
+        setExpandedSuggestions(new Set())
+        setLastResultId(resultId)
+      }
+    }
+  }, [result, lastResultId])
 
   if (!result) {
     return null

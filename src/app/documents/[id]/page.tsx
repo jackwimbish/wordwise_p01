@@ -6,6 +6,7 @@ import { DocumentsService } from '@/lib/services/documents'
 import { Button } from '@/components/ui/button'
 import { RichTextEditor } from '@/components/RichTextEditor'
 import { DocumentEditorLayout } from '@/components/DocumentEditorLayout'
+import { useGrammarContext } from '@/lib/contexts/GrammarContext'
 import { Editor } from '@tiptap/core'
 import { 
   Save, 
@@ -26,6 +27,7 @@ interface DocumentEditorProps {
 export default function DocumentEditor({ params }: DocumentEditorProps) {
   const resolvedParams = use(params)
   const { user, loading: authLoading } = useAuth()
+  const { checkGrammar, isChecking } = useGrammarContext()
   const router = useRouter()
   const [document, setDocument] = useState<Document | null>(null)
   const [title, setTitle] = useState('')
@@ -37,6 +39,7 @@ export default function DocumentEditor({ params }: DocumentEditorProps) {
   const [lastSaved, setLastSaved] = useState<Date | null>(null)
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
   const [editor, setEditor] = useState<Editor | null>(null)
+  const [lastCheckedContent, setLastCheckedContent] = useState('')
 
   const loadDocument = useCallback(async () => {
     try {
@@ -49,6 +52,7 @@ export default function DocumentEditor({ params }: DocumentEditorProps) {
         setDocument(data)
         setTitle(data.title)
         setContent(data.content || '')
+        setLastCheckedContent('') // Reset grammar check content when loading new document
       } else {
         setError('Document not found')
       }
@@ -109,6 +113,24 @@ export default function DocumentEditor({ params }: DocumentEditorProps) {
 
     return () => clearTimeout(autoSaveTimeout)
   }, [document, hasUnsavedChanges, handleAutoSave])
+
+  // Auto-suggestion functionality with debouncing
+  useEffect(() => {
+    if (!editor || isChecking) return
+
+    const text = editor.getText().trim()
+    
+    // Only check if text has actually changed and has meaningful content
+    if (!text || text.length < 10 || text === lastCheckedContent) return
+
+    const autoSuggestionTimeout = setTimeout(async () => {
+      console.log('Auto-checking grammar for text:', text.substring(0, 50) + '...')
+      await checkGrammar(text)
+      setLastCheckedContent(text)
+    }, 1000) // Auto-check after 1 second of inactivity
+
+    return () => clearTimeout(autoSuggestionTimeout)
+  }, [editor, content, isChecking, lastCheckedContent, checkGrammar])
 
   // Track changes to content
   useEffect(() => {
@@ -231,18 +253,25 @@ export default function DocumentEditor({ params }: DocumentEditorProps) {
             </Button>
             
             <div className="flex items-center space-x-4">
-              {/* Auto-save status */}
-              <div className="text-sm">
-                {autoSaving ? (
-                  <span className="text-blue-600 font-medium">Auto-saving...</span>
-                ) : hasUnsavedChanges ? (
-                  <span className="text-amber-600 font-medium">Unsaved changes</span>
-                ) : lastSaved ? (
-                  <span className="text-green-600 font-medium">
-                    Saved at {lastSaved.toLocaleTimeString()}
-                  </span>
-                ) : (
-                  <span className="text-slate-500">Ready</span>
+              {/* Status indicators */}
+              <div className="text-sm space-y-1">
+                <div>
+                  {autoSaving ? (
+                    <span className="text-blue-600 font-medium">Auto-saving...</span>
+                  ) : hasUnsavedChanges ? (
+                    <span className="text-amber-600 font-medium">Unsaved changes</span>
+                  ) : lastSaved ? (
+                    <span className="text-green-600 font-medium">
+                      Saved at {lastSaved.toLocaleTimeString()}
+                    </span>
+                  ) : (
+                    <span className="text-slate-500">Ready</span>
+                  )}
+                </div>
+                {isChecking && (
+                  <div>
+                    <span className="text-purple-600 font-medium">Checking grammar...</span>
+                  </div>
                 )}
               </div>
               
