@@ -9,7 +9,8 @@ import {
   FileText, 
   Trash2, 
   Calendar,
-  Edit
+  Edit,
+  Upload
 } from 'lucide-react'
 import { Database } from '@/lib/database.types'
 import { useRouter } from 'next/navigation'
@@ -22,6 +23,7 @@ export default function DocumentsPage() {
   const [documents, setDocuments] = useState<Document[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [uploading, setUploading] = useState(false)
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -68,6 +70,63 @@ export default function DocumentsPage() {
       }
     } catch {
       setError('Failed to create document')
+    }
+  }
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    // Check if it's a text file
+    const validTypes = ['text/plain', 'text/markdown', 'text/md', 'application/txt']
+    const isTextFile = validTypes.includes(file.type) || file.name.endsWith('.txt') || file.name.endsWith('.md')
+    
+    if (!isTextFile) {
+      setError('Please upload a text file (.txt or .md)')
+      return
+    }
+
+    // Check file size (limit to 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setError('File size must be less than 5MB')
+      return
+    }
+
+    try {
+      setUploading(true)
+      setError(null)
+
+      // Read the file content
+      const text = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onload = (e) => resolve(e.target?.result as string)
+        reader.onerror = () => reject(new Error('Failed to read file'))
+        reader.readAsText(file)
+      })
+
+      // Create document title from filename (remove extension)
+      const title = file.name.replace(/\.[^/.]+$/, '') || 'Uploaded Document'
+
+      // Create the document with the uploaded content
+      const { data, error } = await DocumentsService.createDocument({
+        title,
+        content: text
+      })
+
+      if (error) {
+        setError(error.message)
+      } else if (data) {
+        // Refresh the documents list
+        loadDocuments()
+        // Navigate to the new document
+        router.push(`/documents/${data.id}`)
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to upload file')
+    } finally {
+      setUploading(false)
+      // Reset the input
+      event.target.value = ''
     }
   }
 
@@ -124,13 +183,49 @@ export default function DocumentsPage() {
             <h1 className="text-3xl font-bold text-slate-800">Documents</h1>
             <p className="text-slate-600 mt-2">Manage your writing projects</p>
           </div>
-          <Button
-            onClick={handleNewDocument}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-6 py-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200"
-          >
-            <Plus className="w-5 h-5 mr-2" />
-            New Document
-          </Button>
+          <div className="flex items-center space-x-3">
+            {/* Upload Button */}
+            <div className="relative">
+              <input
+                type="file"
+                accept=".txt,.md,text/plain,text/markdown"
+                onChange={handleFileUpload}
+                disabled={uploading}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
+                id="file-upload"
+              />
+              <Button
+                asChild
+                variant="outline"
+                disabled={uploading}
+                className="border-indigo-200 text-indigo-600 hover:bg-indigo-50 font-medium px-6 py-3 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 disabled:opacity-50"
+              >
+                <label htmlFor="file-upload" className="cursor-pointer">
+                  {uploading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-indigo-600 mr-2"></div>
+                      Uploading...
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="w-5 h-5 mr-2" />
+                      Upload Text File
+                    </>
+                  )}
+                </label>
+              </Button>
+            </div>
+            
+            {/* New Document Button */}
+            <Button
+              onClick={handleNewDocument}
+              disabled={uploading}
+              className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-6 py-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50"
+            >
+              <Plus className="w-5 h-5 mr-2" />
+              New Document
+            </Button>
+          </div>
         </div>
 
         {/* Error Message */}
@@ -150,14 +245,47 @@ export default function DocumentsPage() {
           <div className="text-center py-12">
             <FileText className="w-16 h-16 text-slate-300 mx-auto mb-4" />
             <h3 className="text-xl font-medium text-slate-600 mb-2">No documents yet</h3>
-            <p className="text-slate-500 mb-6">Create your first document to get started</p>
-            <Button
-              onClick={handleNewDocument}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-6 py-3 rounded-lg"
-            >
-              <Plus className="w-5 h-5 mr-2" />
-              Create Document
-            </Button>
+            <p className="text-slate-500 mb-6">Create your first document or upload an existing text file</p>
+            <div className="flex items-center justify-center space-x-4">
+              <div className="relative">
+                <input
+                  type="file"
+                  accept=".txt,.md,text/plain,text/markdown"
+                  onChange={handleFileUpload}
+                  disabled={uploading}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
+                  id="file-upload-empty"
+                />
+                <Button
+                  asChild
+                  variant="outline"
+                  disabled={uploading}
+                  className="border-indigo-200 text-indigo-600 hover:bg-indigo-50 font-medium px-6 py-3 rounded-lg disabled:opacity-50"
+                >
+                  <label htmlFor="file-upload-empty" className="cursor-pointer">
+                    {uploading ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-indigo-600 mr-2"></div>
+                        Uploading...
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="w-5 h-5 mr-2" />
+                        Upload File
+                      </>
+                    )}
+                  </label>
+                </Button>
+              </div>
+              <Button
+                onClick={handleNewDocument}
+                disabled={uploading}
+                className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-6 py-3 rounded-lg disabled:opacity-50"
+              >
+                <Plus className="w-5 h-5 mr-2" />
+                Create Document
+              </Button>
+            </div>
           </div>
         ) : (
           /* Documents Grid */
