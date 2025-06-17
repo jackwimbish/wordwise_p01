@@ -42,21 +42,25 @@ export function AuthExample() {
   }
 
   if (loading) {
-    return <div className="p-4 text-center text-lg font-medium text-gray-900">Loading...</div>
+    return <div className="p-4 text-center text-lg font-medium text-slate-700">Loading...</div>
   }
 
   if (user) {
     return (
-      <div className="p-6 max-w-md mx-auto bg-white rounded-lg shadow-md border">
-        <h2 className="text-xl font-bold mb-4 text-gray-900">✅ Welcome!</h2>
-        <p className="mb-6 text-gray-700 font-medium">
-          Signed in as: <span className="text-blue-600">{user.email}</span>
+      <div className="p-8 max-w-md mx-auto bg-white/90 rounded-2xl shadow-xl border border-slate-200/50 backdrop-blur-sm">
+        <h2 className="text-2xl font-bold mb-6 text-slate-800">✅ Welcome back!</h2>
+        <p className="mb-6 text-slate-700 font-medium">
+          Signed in as: <span className="text-indigo-600 font-semibold">{user.email}</span>
         </p>
-        <div className="space-y-2 mb-4 text-sm text-gray-600">
-          <p>User ID: <code className="bg-gray-100 px-1 rounded text-xs">{user.id}</code></p>
+        <div className="space-y-3 mb-6 text-sm text-slate-600 bg-slate-50/80 p-4 rounded-xl border border-slate-200/50">
+          <p>User ID: <code className="bg-slate-200/70 px-2 py-1 rounded text-xs font-mono text-slate-700">{user.id}</code></p>
           <p>Email confirmed: {user.email_confirmed_at ? '✅ Yes' : '❌ No'}</p>
         </div>
-        <Button onClick={handleSignOut} variant="outline" className="w-full">
+        <Button 
+          onClick={handleSignOut} 
+          variant="outline" 
+          className="w-full border-slate-300 hover:border-slate-400 hover:bg-slate-50 text-slate-700 font-medium"
+        >
           Sign Out
         </Button>
       </div>
@@ -64,14 +68,14 @@ export function AuthExample() {
   }
 
   return (
-    <div className="p-6 max-w-md mx-auto bg-white rounded-lg shadow-md border">
-      <h2 className="text-xl font-bold mb-6 text-gray-900 text-center">
-        {isSignUp ? 'Create Account' : 'Sign In'}
+    <div className="p-8 max-w-md mx-auto bg-white/90 rounded-2xl shadow-xl border border-slate-200/50 backdrop-blur-sm">
+      <h2 className="text-2xl font-bold mb-8 text-slate-800 text-center">
+        {isSignUp ? 'Create Account' : 'Welcome Back'}
       </h2>
       
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <label htmlFor="email" className="block text-sm font-semibold text-gray-900 mb-2">
+          <label htmlFor="email" className="block text-sm font-semibold text-slate-700 mb-3">
             Email Address
           </label>
           <input
@@ -80,14 +84,14 @@ export function AuthExample() {
             placeholder="Enter your email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full p-3 border-2 border-gray-300 rounded-md focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-colors text-gray-900 font-medium bg-white"
+            className="w-full p-4 border-2 border-slate-300 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all duration-200 text-slate-800 font-medium bg-white/90 placeholder:text-slate-400"
             required
           />
         </div>
         
         <div>
-          <label htmlFor="password" className="block text-sm font-semibold text-gray-900 mb-2">
-            Password (min 6 characters)
+          <label htmlFor="password" className="block text-sm font-semibold text-slate-700 mb-3">
+            Password {isSignUp && <span className="text-slate-500 font-normal">(min 6 characters)</span>}
           </label>
           <input
             id="password"
@@ -95,31 +99,34 @@ export function AuthExample() {
             placeholder="Enter your password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full p-3 border-2 border-gray-300 rounded-md focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-colors text-gray-900 font-medium bg-white"
+            className="w-full p-4 border-2 border-slate-300 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all duration-200 text-slate-800 font-medium bg-white/90 placeholder:text-slate-400"
             minLength={6}
             required
           />
         </div>
         
-        <Button type="submit" className="w-full mt-6 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3">
+        <Button 
+          type="submit" 
+          className="w-full mt-8 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-0.5"
+        >
           {isSignUp ? 'Create Account' : 'Sign In'}
         </Button>
       </form>
       
-      <div className="mt-6 text-center">
+      <div className="mt-8 text-center">
         <button
           type="button"
           onClick={() => setIsSignUp(!isSignUp)}
-          className="text-blue-600 hover:text-blue-800 font-medium hover:underline transition-colors"
+          className="text-indigo-600 hover:text-indigo-800 font-medium hover:underline transition-colors duration-200"
         >
           {isSignUp ? 'Already have an account? Sign in' : 'Need an account? Create one'}
         </button>
       </div>
       
       {message && (
-        <div className={`mt-4 p-3 rounded-md border ${
+        <div className={`mt-6 p-4 rounded-xl border ${
           message.includes('✅') || message.includes('Account created') 
-            ? 'bg-green-50 border-green-200 text-green-800' 
+            ? 'bg-emerald-50 border-emerald-200 text-emerald-800' 
             : 'bg-red-50 border-red-200 text-red-800'
         }`}>
           <p className="text-sm font-medium whitespace-pre-line">{message}</p>
