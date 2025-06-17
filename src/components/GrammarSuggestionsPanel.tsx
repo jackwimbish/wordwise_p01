@@ -172,9 +172,9 @@ export function GrammarSuggestionsPanel({
 
                   <div className="mt-1">
                     <p className="text-sm text-slate-900">
-                      <span className="line-through text-slate-500">"{suggestion.original}"</span>
+                      <span className="line-through text-slate-500">&quot;{suggestion.original}&quot;</span>
                       {' → '}
-                      <span className="font-medium text-indigo-600">"{suggestion.suggestion}"</span>
+                      <span className="font-medium text-indigo-600">&quot;{suggestion.suggestion}&quot;</span>
                     </p>
                   </div>
 
