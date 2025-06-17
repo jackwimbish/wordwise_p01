@@ -70,6 +70,17 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Grammar check error:', error)
     
+    // Check if it's an OpenAI API key error
+    if (error instanceof Error && error.message.includes('401')) {
+      return NextResponse.json(
+        { 
+          error: 'Invalid OpenAI API key. Please check your API key configuration.',
+          details: 'The OpenAI API key is missing, invalid, or expired.'
+        },
+        { status: 401 }
+      )
+    }
+    
     return NextResponse.json(
       { 
         error: 'Failed to check grammar and spelling',

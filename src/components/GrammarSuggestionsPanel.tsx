@@ -15,7 +15,7 @@ import {
 
 interface GrammarSuggestionsPanelProps {
   result: GrammarCheckResult | null
-  onApplySuggestion: (suggestion: GrammarSuggestion) => void
+  onApplySuggestion: (suggestion: GrammarSuggestion) => boolean
   onApplyAllSuggestions: () => void
   onClose: () => void
 }
@@ -58,8 +58,16 @@ export function GrammarSuggestionsPanel({
   }
 
   const handleApplySuggestion = (suggestion: GrammarSuggestion, index: number) => {
-    onApplySuggestion(suggestion)
-    setAppliedSuggestions(prev => new Set(prev).add(index))
+    const success = onApplySuggestion(suggestion)
+    if (success) {
+      setAppliedSuggestions(prev => new Set(prev).add(index))
+    }
+  }
+
+  const handleApplyAllSuggestions = () => {
+    onApplyAllSuggestions()
+    // Clear applied suggestions state since all suggestions will be applied
+    setAppliedSuggestions(new Set())
   }
 
   const { suggestions } = result
@@ -102,7 +110,7 @@ export function GrammarSuggestionsPanel({
             <Button
               variant="outline"
               size="sm"
-              onClick={onApplyAllSuggestions}
+              onClick={handleApplyAllSuggestions}
               className="text-indigo-600 border-indigo-200 hover:bg-indigo-50"
             >
               Apply All

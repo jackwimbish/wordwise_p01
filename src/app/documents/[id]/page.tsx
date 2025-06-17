@@ -6,6 +6,7 @@ import { DocumentsService } from '@/lib/services/documents'
 import { Button } from '@/components/ui/button'
 import { RichTextEditor } from '@/components/RichTextEditor'
 import { DocumentEditorLayout } from '@/components/DocumentEditorLayout'
+import { Editor } from '@tiptap/core'
 import { 
   Save, 
   ArrowLeft,
@@ -35,6 +36,7 @@ export default function DocumentEditor({ params }: DocumentEditorProps) {
   const [error, setError] = useState<string | null>(null)
   const [lastSaved, setLastSaved] = useState<Date | null>(null)
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+  const [editor, setEditor] = useState<Editor | null>(null)
 
   const loadDocument = useCallback(async () => {
     try {
@@ -154,6 +156,10 @@ export default function DocumentEditor({ params }: DocumentEditorProps) {
     router.push('/documents')
   }
 
+  const handleEditorReady = (editorInstance: Editor) => {
+    setEditor(editorInstance)
+  }
+
   // Prevent browser navigation with unsaved changes
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
@@ -210,7 +216,7 @@ export default function DocumentEditor({ params }: DocumentEditorProps) {
   }
 
   return (
-    <DocumentEditorLayout>
+    <DocumentEditorLayout editor={editor}>
       <div className="p-8">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
@@ -271,6 +277,7 @@ export default function DocumentEditor({ params }: DocumentEditorProps) {
               <RichTextEditor
                 content={content}
                 onChange={setContent}
+                onEditorReady={handleEditorReady}
               />
             </div>
           </div>

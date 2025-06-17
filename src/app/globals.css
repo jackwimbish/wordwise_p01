@@ -210,3 +210,24 @@ button {
     color: #94a3b8 !important;
   }
 }
+
+/* Grammar highlight styles - target by background color */
+.ProseMirror mark[style*="background-color: rgb(254, 226, 226)"] {
+  border-bottom: 2px solid #dc2626 !important;
+  border-radius: 2px;
+}
+
+.ProseMirror mark[style*="background-color: rgb(254, 240, 138)"] {
+  border-bottom: 2px solid #f59e0b !important;
+  border-radius: 2px;
+}
+
+.ProseMirror mark[style*="background-color: rgb(191, 219, 254)"] {
+  border-bottom: 2px solid #2563eb !important;
+  border-radius: 2px;
+}
+
+.ProseMirror mark[style*="background-color: rgb(233, 213, 255)"] {
+  border-bottom: 2px solid #9333ea !important;
+  border-radius: 2px;
+}

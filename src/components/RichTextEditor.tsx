@@ -1,11 +1,12 @@
 'use client'
 
-import { useEditor, EditorContent } from '@tiptap/react'
+import { useEditor, EditorContent, Editor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Bold from '@tiptap/extension-bold'
 import Italic from '@tiptap/extension-italic'
 import Underline from '@tiptap/extension-underline'
 import Placeholder from '@tiptap/extension-placeholder'
+import Highlight from '@tiptap/extension-highlight'
 import { Button } from './ui/button'
 import { 
   Bold as BoldIcon, 
@@ -20,15 +21,18 @@ import {
   Loader2
 } from 'lucide-react'
 import { useGrammarContext } from '@/lib/contexts/GrammarContext'
+import { applyGrammarHighlights, clearGrammarHighlights } from '@/lib/utils/grammarHighlight'
+import { useEffect } from 'react'
 
 interface RichTextEditorProps {
   content: string
   onChange: (content: string) => void
   placeholder?: string
+  onEditorReady?: (editor: Editor) => void
 }
 
-export function RichTextEditor({ content, onChange, placeholder = "Start writing..." }: RichTextEditorProps) {
-  const { checkGrammar, isChecking, error, clearError } = useGrammarContext()
+export function RichTextEditor({ content, onChange, placeholder = "Start writing...", onEditorReady }: RichTextEditorProps) {
+  const { checkGrammar, isChecking, error, clearError, result } = useGrammarContext()
 
   const editor = useEditor({
     extensions: [
@@ -36,6 +40,9 @@ export function RichTextEditor({ content, onChange, placeholder = "Start writing
       Bold,
       Italic,
       Underline,
+      Highlight.configure({
+        multicolor: true,
+      }),
       Placeholder.configure({
         placeholder,
       }),
@@ -45,6 +52,22 @@ export function RichTextEditor({ content, onChange, placeholder = "Start writing
       onChange(editor.getHTML())
     },
   })
+
+  // Apply highlights when suggestions change
+  useEffect(() => {
+    if (editor && result?.suggestions && result.suggestions.length > 0) {
+      applyGrammarHighlights(editor, result.suggestions)
+    } else if (editor) {
+      clearGrammarHighlights(editor)
+    }
+  }, [editor, result])
+
+  // Notify parent when editor is ready
+  useEffect(() => {
+    if (editor && onEditorReady) {
+      onEditorReady(editor)
+    }
+  }, [editor, onEditorReady])
 
   if (!editor) {
     return null

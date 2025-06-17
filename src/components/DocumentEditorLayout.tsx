@@ -4,22 +4,30 @@ import { ReactNode } from 'react'
 import { useGrammarContext } from '@/lib/contexts/GrammarContext'
 import { GrammarSidebarPanel } from './GrammarSidebarPanel'
 import { GrammarSuggestion } from '@/lib/hooks/useGrammarCheck'
+import { Editor } from '@tiptap/core'
 
 interface DocumentEditorLayoutProps {
   children: ReactNode
+  editor?: Editor | null
 }
 
-export function DocumentEditorLayout({ children }: DocumentEditorLayoutProps) {
-  const { result, isChecking, clearSuggestions } = useGrammarContext()
+export function DocumentEditorLayout({ 
+  children, 
+  editor
+}: DocumentEditorLayoutProps) {
+  const { result, isChecking, clearSuggestions, applySuggestion, applyAllSuggestions } = useGrammarContext()
 
-  const handleApplySuggestion = (suggestion: GrammarSuggestion) => {
-    // This will be handled by the RichTextEditor through context
-    console.log('Apply suggestion:', suggestion)
+  const handleApplySuggestion = (suggestion: GrammarSuggestion): boolean => {
+    if (editor) {
+      return applySuggestion(suggestion, editor)
+    }
+    return false
   }
 
   const handleApplyAllSuggestions = () => {
-    // This will be handled by the RichTextEditor through context
-    console.log('Apply all suggestions')
+    if (editor) {
+      applyAllSuggestions(editor)
+    }
   }
 
   return (
