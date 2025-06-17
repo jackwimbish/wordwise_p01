@@ -5,6 +5,7 @@ import { useAuth } from '@/lib/hooks/useAuth'
 import { DocumentsService } from '@/lib/services/documents'
 import { Button } from '@/components/ui/button'
 import { RichTextEditor } from '@/components/RichTextEditor'
+import { DocumentEditorLayout } from '@/components/DocumentEditorLayout'
 import { 
   Save, 
   ArrowLeft,
@@ -209,74 +210,76 @@ export default function DocumentEditor({ params }: DocumentEditorProps) {
   }
 
   return (
-    <div className="p-8">
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <Button
-            onClick={handleBack}
-            variant="outline"
-            className="flex items-center"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Documents
-          </Button>
-          
-          <div className="flex items-center space-x-4">
-            {/* Auto-save status */}
-            <div className="text-sm">
-              {autoSaving ? (
-                <span className="text-blue-600 font-medium">Auto-saving...</span>
-              ) : hasUnsavedChanges ? (
-                <span className="text-amber-600 font-medium">Unsaved changes</span>
-              ) : lastSaved ? (
-                <span className="text-green-600 font-medium">
-                  Saved at {lastSaved.toLocaleTimeString()}
-                </span>
-              ) : (
-                <span className="text-slate-500">Ready</span>
-              )}
-            </div>
-            
+    <DocumentEditorLayout>
+      <div className="p-8">
+        <div className="max-w-4xl mx-auto">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-8">
             <Button
-              onClick={handleSave}
-              disabled={saving || autoSaving}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium disabled:opacity-50"
+              onClick={handleBack}
+              variant="outline"
+              className="flex items-center"
             >
-              <Save className="w-4 h-4 mr-2" />
-              {saving ? 'Saving...' : 'Save Now'}
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Documents
             </Button>
+            
+            <div className="flex items-center space-x-4">
+              {/* Auto-save status */}
+              <div className="text-sm">
+                {autoSaving ? (
+                  <span className="text-blue-600 font-medium">Auto-saving...</span>
+                ) : hasUnsavedChanges ? (
+                  <span className="text-amber-600 font-medium">Unsaved changes</span>
+                ) : lastSaved ? (
+                  <span className="text-green-600 font-medium">
+                    Saved at {lastSaved.toLocaleTimeString()}
+                  </span>
+                ) : (
+                  <span className="text-slate-500">Ready</span>
+                )}
+              </div>
+              
+              <Button
+                onClick={handleSave}
+                disabled={saving || autoSaving}
+                className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium disabled:opacity-50"
+              >
+                <Save className="w-4 h-4 mr-2" />
+                {saving ? 'Saving...' : 'Save Now'}
+              </Button>
+            </div>
           </div>
-        </div>
 
-        {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-md mb-6">
-            <p>{error}</p>
-          </div>
-        )}
+          {error && (
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-md mb-6">
+              <p>{error}</p>
+            </div>
+          )}
 
-        <div className="bg-white rounded-lg shadow-lg">
-          <div className="p-6 border-b border-slate-200">
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Document Title"
-              className="text-2xl font-bold w-full outline-none"
-            />
+          <div className="bg-white rounded-lg shadow-lg">
+            <div className="p-6 border-b border-slate-200">
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Document Title"
+                className="text-2xl font-bold w-full outline-none"
+              />
+            </div>
+            <div className="p-6">
+              <RichTextEditor
+                content={content}
+                onChange={setContent}
+              />
+            </div>
           </div>
-          <div className="p-6">
-            <RichTextEditor
-              content={content}
-              onChange={setContent}
-            />
-          </div>
-        </div>
 
-        <div className="mt-8 text-center text-sm text-slate-500">
-          <p>Word Count: {DocumentsService.countWords(content)}</p>
+          <div className="mt-8 text-center text-sm text-slate-500">
+            <p>Word Count: {DocumentsService.countWords(content)}</p>
+          </div>
         </div>
       </div>
-    </div>
+    </DocumentEditorLayout>
   )
 } 
