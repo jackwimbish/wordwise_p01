@@ -42,6 +42,7 @@ export function GrammarSuggestionsPanel({
 }: GrammarSuggestionsPanelProps) {
   const [expandedSuggestions, setExpandedSuggestions] = useState<Set<number>>(new Set())
   const [appliedSuggestions, setAppliedSuggestions] = useState<Set<number>>(new Set())
+  const [dismissedSuggestions, setDismissedSuggestions] = useState<Set<number>>(new Set())
 
   if (!result) {
     return null
@@ -64,6 +65,10 @@ export function GrammarSuggestionsPanel({
     }
   }
 
+  const handleDismissSuggestion = (index: number) => {
+    setDismissedSuggestions(prev => new Set(prev).add(index))
+  }
+
   const handleApplyAllSuggestions = () => {
     onApplyAllSuggestions()
     // Clear applied suggestions state since all suggestions will be applied
@@ -72,7 +77,10 @@ export function GrammarSuggestionsPanel({
 
   const { suggestions } = result
 
-  if (suggestions.length === 0) {
+  // Filter out dismissed suggestions for display
+  const activeSuggestions = suggestions.filter((_, index) => !dismissedSuggestions.has(index))
+
+  if (suggestions.length === 0 || activeSuggestions.length === 0) {
     return (
       <div className="bg-white border border-slate-200 rounded-lg p-6 shadow-sm">
         <div className="flex items-center justify-between mb-4">
@@ -91,7 +99,11 @@ export function GrammarSuggestionsPanel({
           <CheckCircle className="w-6 h-6" />
           <div>
             <p className="font-medium">Great job!</p>
-            <p className="text-sm text-slate-600">No grammar or spelling issues found.</p>
+            <p className="text-sm text-slate-600">
+              {suggestions.length === 0 
+                ? "No grammar or spelling issues found." 
+                : "All suggestions have been addressed."}
+            </p>
           </div>
         </div>
       </div>
@@ -103,10 +115,10 @@ export function GrammarSuggestionsPanel({
       <div className="flex items-center justify-between p-4 border-b border-slate-200">
         <div>
           <h3 className="text-lg font-semibold text-slate-900">Grammar & Spelling Suggestions</h3>
-          <p className="text-sm text-slate-600">{suggestions.length} issues found</p>
+          <p className="text-sm text-slate-600">{activeSuggestions.length} issues remaining</p>
         </div>
         <div className="flex items-center space-x-2">
-          {suggestions.length > 1 && (
+          {activeSuggestions.length > 0 && (
             <Button
               variant="outline"
               size="sm"
@@ -133,8 +145,13 @@ export function GrammarSuggestionsPanel({
         </div>
       )}
 
-      <div className="max-h-96 overflow-y-auto">
+      <div className="max-h-[calc(100vh-20rem)] overflow-y-auto">
         {suggestions.map((suggestion, index) => {
+          const isDismissed = dismissedSuggestions.has(index)
+          
+          // Don't render dismissed suggestions
+          if (isDismissed) return null
+          
           const Icon = typeIcons[suggestion.type]
           const isExpanded = expandedSuggestions.has(index)
           const isApplied = appliedSuggestions.has(index)
@@ -186,18 +203,31 @@ export function GrammarSuggestionsPanel({
                     </p>
                   </div>
 
-                  {isExpanded && (
-                    <div className="mt-2 space-y-2">
-                      <p className="text-sm text-slate-600">{suggestion.explanation}</p>
+                  <div className="mt-2 flex items-center space-x-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleApplySuggestion(suggestion, index)}
+                      disabled={isApplied}
+                      className="text-indigo-600 border-indigo-200 hover:bg-indigo-50 disabled:opacity-50"
+                    >
+                      {isApplied ? 'Applied' : 'Apply'}
+                    </Button>
+                    {!isApplied && (
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => handleApplySuggestion(suggestion, index)}
-                        disabled={isApplied}
-                        className="text-indigo-600 border-indigo-200 hover:bg-indigo-50 disabled:opacity-50"
+                        onClick={() => handleDismissSuggestion(index)}
+                        className="text-slate-600 border-slate-200 hover:bg-slate-50"
                       >
-                        {isApplied ? 'Applied' : 'Apply Suggestion'}
+                        Dismiss
                       </Button>
+                    )}
+                  </div>
+
+                  {isExpanded && (
+                    <div className="mt-2">
+                      <p className="text-sm text-slate-600">{suggestion.explanation}</p>
                     </div>
                   )}
                 </div>
