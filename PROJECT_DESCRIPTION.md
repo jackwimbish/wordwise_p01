@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-This project is a web-based writing assistant that offers grammar, spelling, and clarity suggestions in real time. Authenticated users can create, edit, and manage documents while applying AI-powered suggestions based on LanguageTool.
+This project is a web-based writing assistant that offers grammar, spelling, and clarity suggestions in real time. Authenticated users can create, edit, and manage documents while applying AI-powered suggestions based on A fast, hosted LLM.
 
 ## UI Description
 
@@ -21,7 +21,7 @@ This project is a web-based writing assistant that offers grammar, spelling, and
 ### Stack
 
 - **Frontend:** Next.js, TypeScript, Tailwind CSS, TipTap editor, shadcn/ui
-- **Backend:** Supabase (PostgreSQL, Auth), LanguageTool API (hosted), optional FastAPI middleware for suggestion normalization
+- **Backend:** Supabase (PostgreSQL, Auth), cost-optimized LLM (hosted), optional FastAPI middleware for suggestion normalization
 - **Hosting:** Vercel (frontend), Supabase (backend and Edge Functions)
 - **Monitoring:** Sentry for error logging and alerting
 - **Email:** Resend (transactional emails for signup, password reset, and account deletion)
@@ -40,25 +40,19 @@ This project is a web-based writing assistant that offers grammar, spelling, and
 
 ### Core APIs
 
-- `POST /api/suggestions` – Analyze document content using LanguageTool and return structured suggestions
+- `POST /api/suggestions` – Analyze document content using language model and return structured suggestions
 - `POST /api/documents` – Create a new document
 - `GET /api/documents` – List user's saved documents
 - `GET /api/documents/:id` – Retrieve a specific document
 - `PUT /api/documents/:id` – Update content or metadata of a document
 - `DELETE /api/documents/:id` – Delete a document
 
-### User Management
-
-- `PUT /api/account/password` – Change user password
-- `DELETE /api/account` – Delete user account
-- `POST /api/email/send` – Trigger emails via Resend for confirmations and password resets (Edge Function)
-
 ## Key Components
 
 ### Frontend Components
 
 - **EditorComponent** – Rich text editor with formatting and inline error annotations
-- **SuggestionSidebar** – List of LanguageTool suggestions with accept/reject actions
+- **SuggestionSidebar** – List of writing suggestions with accept/reject actions
 - **DocumentList** – Displays saved documents with options to rename, duplicate, or delete
 - **AuthForms** – Signup, login, password update interfaces
 - **DocumentToolbar** – Save, rename, refresh, and download actions
@@ -75,7 +69,7 @@ This project is a web-based writing assistant that offers grammar, spelling, and
 - [ ] Implement user registration, login, and logout via Supabase Auth
 - [ ] Create a dashboard displaying user documents with options to open, rename, duplicate, and delete
 - [ ] Develop a rich text editor with formatting and text input capability
-- [ ] Integrate LanguageTool API for grammar, spelling, and clarity suggestions
+- [ ] Integrate LLM calls for grammar, spelling, and clarity suggestions
 - [ ] Display inline highlights and a suggestion sidebar with explanation and apply/reject buttons
 - [ ] Enable saving, versioning, and persistent storage of user documents
 - [ ] Provide a download button to export documents in .txt format
